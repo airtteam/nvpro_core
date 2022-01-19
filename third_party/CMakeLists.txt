@@ -44,6 +44,36 @@ endif()
 set(IMGUI_DIR "${CMAKE_CURRENT_SOURCE_DIR}/imgui" PARENT_SCOPE)
 
 
+
+# nanovdb
+
+if (NOT TARGET nanovdb AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/nanovdb)
+  add_library(nanovdb INTERFACE)
+  set(NANOVDB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/nanovdb)
+  target_sources(nanovdb INTERFACE ${NANOVDB_DIR}/nanovdb.h)
+  target_include_directories(nanovdb INTERFACE ${NANOVDB_DIR})
+endif()
+if (TARGET nanovdb)
+  LIST(APPEND THIRDPARTY_LIBRARIES nanovdb)
+endif()
+
+### optional dependencies
+
+# Interplote
+
+
+
+if (NOT TARGET Inter AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/libInterpolate)
+  add_library(Inter INTERFACE)
+  set(INTER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libInterpolate)
+  target_sources(Inter INTERFACE ${INTER_DIR}/Interpolate.hpp ${INTER_DIR}/AnyInterpolator.hpp)
+  target_include_directories(Inter INTERFACE ${INTER_DIR})
+endif()
+if (TARGET Inter)
+  LIST(APPEND THIRDPARTY_LIBRARIES Inter)
+endif()
+
+
 ### optional dependencies
 
 # glm
@@ -133,26 +163,26 @@ endif()
 
 # Zstandard (~450 KB)
 # Check to make sure 
-if (NOT TARGET libzstd_static AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/zstd)
-  if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/zstd/lib/zstd.h)
-    message(WARNING "It looks like the zstd submodule hasn't been downloaded; try running git submodule update --init --recursive in the nvpro_core directory.")
-  else()
-    set(ZSTD_BUILD_PROGRAMS OFF)
-    set(ZSTD_BUILD_SHARED OFF)
-    set(ZSTD_BUILD_STATIC ON)
-    set(ZSTD_USE_STATIC_RUNTIME ON)
-    set(_ZSTD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/zstd)
-    add_subdirectory(${_ZSTD_DIR}/build/cmake)
-    target_sources(libzstd_static INTERFACE $<BUILD_INTERFACE:${_ZSTD_DIR}/lib/zstd.h>)
-    target_include_directories(libzstd_static INTERFACE $<BUILD_INTERFACE:${_ZSTD_DIR}/lib>)
-  endif()
-endif()
-if (TARGET libzstd_static)
-  # Make targets linking with libzstd_static compile with NVP_SUPPORTS_ZSTD
-  target_compile_definitions(libzstd_static INTERFACE NVP_SUPPORTS_ZSTD)
-  LIST(APPEND THIRDPARTY_LIBRARIES libzstd_static)
-  set_property(TARGET libzstd_static PROPERTY FOLDER "ThirdParty")
-endif()
+# if (NOT TARGET libzstd_static AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/zstd)
+#   if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/zstd/lib/zstd.h)
+#     message(WARNING "It looks like the zstd submodule hasn't been downloaded; try running git submodule update --init --recursive in the nvpro_core directory.")
+#   else()
+#     set(ZSTD_BUILD_PROGRAMS OFF)
+#     set(ZSTD_BUILD_SHARED OFF)
+#     set(ZSTD_BUILD_STATIC ON)
+#     set(ZSTD_USE_STATIC_RUNTIME ON)
+#     set(_ZSTD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/zstd)
+#     add_subdirectory(${_ZSTD_DIR}/build/cmake)
+#     target_sources(libzstd_static INTERFACE $<BUILD_INTERFACE:${_ZSTD_DIR}/lib/zstd.h>)
+#     target_include_directories(libzstd_static INTERFACE $<BUILD_INTERFACE:${_ZSTD_DIR}/lib>)
+#   endif()
+# endif()
+# if (TARGET libzstd_static)
+#   # Make targets linking with libzstd_static compile with NVP_SUPPORTS_ZSTD
+#   target_compile_definitions(libzstd_static INTERFACE NVP_SUPPORTS_ZSTD)
+#   LIST(APPEND THIRDPARTY_LIBRARIES libzstd_static)
+#   set_property(TARGET libzstd_static PROPERTY FOLDER "ThirdParty")
+# endif()
 
 # Basis Universal (~800 KB)
 if (NOT TARGET basisu AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/basis_universal)
